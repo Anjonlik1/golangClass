@@ -6,7 +6,7 @@ import (
 	"sync/atomic"
 )
 
-func BankBalance(balance *int64, amount int64, wg *sync.WaitGroup) {
+func BalanceBank(balance *int64, amount int64, wg *sync.WaitGroup) {
 	defer wg.Done()
 	atomic.AddInt64(balance, amount)
 }
@@ -20,7 +20,7 @@ func main() {
 	wg.Add(numTransaction)
 
 	for i := 0; i < numTransaction; i++ {
-		go BankBalance(&balance, amountToAdd, &wg)
+		go BalanceBank(&balance, amountToAdd, &wg)
 	}
 
 	wg.Wait()
