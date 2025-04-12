@@ -52,7 +52,7 @@ func HandleIncomingRequest(conn net.Conn) {
 	}
 
 	response = "File successfully saved!"
-	conn.Write([]byte(response))
+	conn.Write([]byte(response)) // Send to the client side
 	return
 }
 

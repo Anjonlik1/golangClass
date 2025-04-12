@@ -22,7 +22,7 @@ func main() {
 	if err != nil {
 		fmt.Printf("Error read file: %s\n", err)
 	}
-	_, err = conn.Write(fileBytes)
+	_, err = conn.Write(fileBytes) // Send to the server side
 	if err != nil {
 		fmt.Printf("Error send file: %s\n", err)
 	}
