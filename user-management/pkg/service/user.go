@@ -31,9 +31,9 @@ var usersDb = []model.User{
 
 type User interface {
 	CreateUser(model.CreateUserDTO)
-	GetUser() []model.User
-	GetSingleUser(id string) (model.User, bool)
-	UpdateUser(id string, user model.User)
+	GetUsers() []model.User
+	GetSingleUser(id string) (model.User, error)
+	UpdateUser(id string, user model.User) bool
 	DeleteUser(id string) error
 }
 
@@ -49,28 +49,29 @@ func (u *UserService) CreateUser(newUser model.CreateUserDTO) {
 	usersDb = append(usersDb, model.User(newUser))
 
 }
-func (u *UserService) GetUser() []model.User {
+func (u *UserService) GetUsers() []model.User {
 	return usersDb
 
 }
-func (u *UserService) GetSingleUser(id string) (model.User, bool) {
+func (u *UserService) GetSingleUser(id string) (model.User, error) {
 
 	for _, u := range usersDb {
 		if u.Id == id {
-			return u, true
+			return u, nil
 		}
 	}
-	return model.User{}, false
+	return model.User{}, fmt.Errorf("user with id %v not found", id)
 
 }
 
-func (u *UserService) UpdateUser(id string, user model.User) {
+func (u *UserService) UpdateUser(id string, user model.User) bool {
 	for i, u := range usersDb {
 		if u.Id == id {
 			usersDb[i] = user
-			return
+			return true
 		}
 	}
+	return false
 	// If user not found, you might want to handle this case
 }
 func (u *UserService) DeleteUser(id string) error {

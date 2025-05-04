@@ -1,10 +1,12 @@
 package service
 
+import "user-management/pkg/repository"
+
 type Service struct {
 	User
 }
 
-func NewService() *Service {
+func NewService(repositories *repository.Repository) *Service {
 	return &Service{
 		User: NewUserService(),
 	}

@@ -19,17 +19,17 @@ func (h *Handler) users(w http.ResponseWriter, r *http.Request) {
 	} else if method == "DELETE" {
 		h.deleteUser(w, r)
 		return
+	} else if method == "GET" {
+		response["status"] = "success"
+		response["statusCode"] = http.StatusOK
+
+		response["data"] = h.services.User.GetUsers()
+		w.WriteHeader(http.StatusOK)
+
+		w.Header().Set("Content-Type", "application/json")
+
+		json.NewEncoder(w).Encode(response)
 	}
-	response["status"] = "success"
-	response["statusCode"] = http.StatusOK
-
-	//usersjson, _ := json.Marshal(usersDb)
-	response["data"] = h.services.User.GetUser()
-	w.WriteHeader(http.StatusOK)
-
-	w.Header().Set("Content-Type", "application/json")
-
-	json.NewEncoder(w).Encode(response)
 
 }
 
@@ -43,23 +43,17 @@ func (h *Handler) singleUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	id := mux.Vars(r)["id"]
-	user, ok := h.services.User.GetUserById(id)
-	if ok {
+	user, err := h.services.User.GetSingleUser(id)
+	if err != nil {
+		response["status"] = "Not Found"
+		response["statusCode"] = http.StatusNotFound
+		w.WriteHeader(http.StatusNotFound)
+	} else {
 		response["data"] = user
 		response["status"] = "success"
 		response["statusCode"] = http.StatusOK
-
-		json.NewEncoder(w).Encode(response)
-
-		return
 	}
-
-	response["status"] = "Not Found"
-	response["statusCode"] = http.StatusNotFound
-	w.WriteHeader(http.StatusNotFound)
-
 	json.NewEncoder(w).Encode(response)
-
 }
 func (h *Handler) createUser(w http.ResponseWriter, r *http.Request) {
 	var newUser model.CreateUserDTO
@@ -69,48 +63,44 @@ func (h *Handler) createUser(w http.ResponseWriter, r *http.Request) {
 
 	response["status"] = "Created"
 	response["statusCode"] = http.StatusCreated
-	json.NewEncoder(w).Encode(response)
-
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
 
+	json.NewEncoder(w).Encode(response)
+
 }
 func (h *Handler) updateUser(w http.ResponseWriter, r *http.Request) {
-	var updatedUser User
+	var updatedUser model.User
 	json.NewDecoder(r.Body).Decode(&updatedUser)
+	w.Header().Set("Content-Type", "application/json")
 
 	id := mux.Vars(r)["id"]
-
-	for i, u := range usersDb {
-		if u.Id == id {
-			usersDb[i] = updatedUser
-			response["status"] = "Updated"
-			response["statusCode"] = http.StatusOK
-			json.NewEncoder(w).Encode(response)
-			return
-		}
+	founded := h.services.UpdateUser(id, updatedUser)
+	if !founded {
+		response["status"] = "Not Found"
+		response["statusCode"] = http.StatusNotFound
+		w.WriteHeader(http.StatusNotFound)
+	} else {
+		response["status"] = "Ok"
+		response["statusCode"] = http.StatusOK
 	}
-	response["status"] = "Not Found"
-	response["statusCode"] = http.StatusNotFound
-	w.WriteHeader(http.StatusNotFound)
 
 	json.NewEncoder(w).Encode(response)
 }
 func (h *Handler) deleteUser(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
+	w.Header().Set("Content-Type", "application/json")
 
-	for i, u := range usersDb {
-		if u.Id == id {
-			usersDb = append(usersDb[:i], usersDb[i+1:]...)
-			response["status"] = "Deleted"
-			response["statusCode"] = http.StatusOK
-			json.NewEncoder(w).Encode(response)
-			return
-		}
+	err := h.services.DeleteUser(id)
+	if err != nil {
+		response["status"] = "Not Found"
+		response["statusCode"] = http.StatusNotFound
+		w.WriteHeader(http.StatusNotFound)
+	} else {
+		response["status"] = "Ok"
+		response["statusCode"] = http.StatusOK
+		w.WriteHeader(http.StatusOK)
 	}
-	response["status"] = "Not Found"
-	response["statusCode"] = http.StatusNotFound
-	w.WriteHeader(http.StatusNotFound)
 
 	json.NewEncoder(w).Encode(response)
 }

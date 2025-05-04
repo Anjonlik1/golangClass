@@ -4,14 +4,14 @@ import (
 	"log"
 	"user-management/pkg/handler"
 	httpserver "user-management/pkg/http-server"
+	"user-management/pkg/repository"
 	"user-management/pkg/service"
 )
 
 func main() {
 
-	repositories
-	services := service.NewService()
-
+	repositories := repository.NewRepository()
+	services := service.NewService(repositories)
 	handler := handler.NewHandler(services)
 
 	router := handler.InitRoutes()

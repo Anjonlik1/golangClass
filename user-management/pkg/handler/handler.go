@@ -18,9 +18,9 @@ func NewHandler(services *service.Service) *Handler {
 	}
 }
 
-func (h *Handler) InitRoutes() {
+func (h *Handler) InitRoutes() *mux.Router {
 	r := mux.NewRouter()
-	
+
 	r.HandleFunc("/users", h.users)
 	r.HandleFunc("/users/{id}", h.singleUser)
 	r.HandleFunc("/users", h.createUser)
